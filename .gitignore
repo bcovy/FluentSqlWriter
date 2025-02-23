@@ -17,6 +17,7 @@ bld/
 /.vs
 /.user
 .idea/**
+/SqlWriter.sln.DotSettings.user
 
 # Default ignored files
 /shelf/
