@@ -7,24 +7,18 @@ using SqlWriter.Interfaces.Internals;
 
 namespace SqlWriter.Translators;
 
-public partial class ExpressionSqlTranslator : ExpressionVisitor, IExpressionSqlTranslator
+public partial class ExpressionSqlTranslator(ITablesManager tables, IParameterManager parameterManager)
+    : ExpressionVisitor, IExpressionSqlTranslator
 {
-    private StringBuilder _sb = null!;
+    private StringBuilder _sb = new();
     private bool _visitingBinary;  //Used to help identify target column of condition statement.
     private bool _addRawValue;  //If true, raw statement will be used.
     private bool _doNotParameterizeValues;  //If true, raw value will be used instead of parameter.
     private bool _excludeTableAlias;  //if true, will exclude the column's table alias.
     private string _parameterNamePrefix = "p";
-    private readonly IParameterManager _parameterManager;
 
-    private ITablesManager Tables { get; }
+    private ITablesManager Tables { get; } = tables;
     public Stack<ColumnModel> Columns { get; private set; } = [];
-
-    public ExpressionSqlTranslator(ITablesManager tables, IParameterManager parameterManager)
-    {
-        Tables = tables;
-        _parameterManager = parameterManager;
-    }
 
     public string Translate(Expression expression, string parameterNamePrefix = "p", bool doNotParameterizeValues = false)
     {
@@ -213,8 +207,9 @@ public partial class ExpressionSqlTranslator : ExpressionVisitor, IExpressionSql
     /// <param name="member">Column member expression.</param>
     private void CreateColumn(MemberExpression? member)
     {
+        ArgumentNullException.ThrowIfNull(member, nameof(member));
         var table = Tables.GetTable(member);
-        var column = new ColumnModel(member!.Member.Name, table.EntityType, table.TableAlias);
+        var column = new ColumnModel(member.Member.Name, table.EntityType, table.TableAlias);
 
         if (_excludeTableAlias)
             _sb.Append(column.Name);
@@ -226,8 +221,9 @@ public partial class ExpressionSqlTranslator : ExpressionVisitor, IExpressionSql
     
     private void CreateColumn(Expression? expression)
     {
+        ArgumentNullException.ThrowIfNull(expression, nameof(expression));
         var table = Tables.GetTable(expression);
-        var column = new ColumnModel(expression!.ResolveName(), table.EntityType, table.TableAlias);
+        var column = new ColumnModel(expression.ResolveName(), table.EntityType, table.TableAlias);
 
         if (_excludeTableAlias)
             _sb.Append(column.Name);
@@ -263,8 +259,8 @@ public partial class ExpressionSqlTranslator : ExpressionVisitor, IExpressionSql
         }
 
         string paramName = Columns.TryPeek(out var column1) 
-            ? _parameterManager.Add(column1, value, _parameterNamePrefix) 
-            : _parameterManager.Add(value, _parameterNamePrefix);
+            ? parameterManager.Add(column1, value, _parameterNamePrefix) 
+            : parameterManager.Add(value, _parameterNamePrefix);
 
         _sb.Append(paramName);
     }
