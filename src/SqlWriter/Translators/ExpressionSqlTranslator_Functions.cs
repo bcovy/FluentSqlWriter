@@ -57,7 +57,7 @@ public partial class ExpressionSqlTranslator
         var column = new ColumnModel(expression.Arguments[1].ResolveName(), table.EntityType, table.TableAlias);
         var parameter = new ParameterModel<object?>(value, column.Name, column.SqlDataType);
 
-        _parameterManager.AddParameters([parameter]);
+        parameterManager.AddParameters([parameter]);
     }
 
     #endregion Conditions
