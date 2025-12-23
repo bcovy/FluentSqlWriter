@@ -27,7 +27,8 @@ public class SelectBuilder(IExpressionSqlTranslator translator, ITablesManager t
 
     public void SelectAll()
     {
-        foreach (var item in tables.Tables.Select(x => x.Value.Columns))
+        //Cheap fix to exclude WHERE EXIST tables from having their columns projected into the SELEC statement.
+        foreach (var item in tables.Tables.Where(x => x.Value.TableAlias != "ext").Select(x => x.Value.Columns))
         {
             var columns = item.Values.Select(x => new SelectColumn(x.Name, x.ToString()));
 

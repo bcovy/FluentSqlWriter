@@ -57,7 +57,7 @@ public static class ExpressionHelpers
     {
         object? parentValue = null;
 
-        if (node.Expression != null || node.Expression.CanReturnValue())
+        if (node.Expression != null && node.Expression.CanReturnValue())
             parentValue = node.Expression?.GetValue();
         // Try/Catch used to deal with anonymous objects with no easily identifiable type. 
         try

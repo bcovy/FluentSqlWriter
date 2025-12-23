@@ -172,7 +172,7 @@ namespace SqlWriter.Tests.Infrastructure
         public void GetValue_from_method_call_expression()
         {
             var hella = new int[] { 1, 2 };
-            Expression<Func<QueryableMod1, bool>> expression = a => hella.Contains(1);
+            Expression<Func<QueryableMod1, bool>> expression = a => Enumerable.Contains(hella, 1);
 
             object actual = expression.Body.GetValue();
 

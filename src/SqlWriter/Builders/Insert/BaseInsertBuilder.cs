@@ -49,23 +49,6 @@ public abstract class BaseInsertBuilder
 
     public string GetSqlStatement()
     {
-        return BuildStatement();
-    }
-
-    public IConcatSql Concat()
-    {
-        return new ConcatSql(ParameterManager, BuildStatement(), ParameterPrefix);
-    }
-
-    public IConcatSql ConcatWithRowCount()
-    {
-        string sql = $"{BuildStatement()};\nIF @@ROWCOUNT = 0\nBEGIN     RETURN\nEND ";
-
-        return new ConcatSql(ParameterManager, sql, ParameterPrefix);
-    }
-
-    public string BuildStatement()
-    {
         if (InsertTargets.Count == 0)
         {
             //Use insert entity to derive insert column names and ordinal position.
@@ -94,6 +77,18 @@ public abstract class BaseInsertBuilder
             sql.Append($" HAVING {HavingCondition}");
 
         return !string.IsNullOrEmpty(_concatSql) ? $"{_concatSql};\n{sql}" : sql.ToString();
+    }
+
+    public IConcatSql Concat()
+    {
+        return new ConcatSql(ParameterManager, GetSqlStatement(), ParameterPrefix);
+    }
+
+    public IConcatSql ConcatWithRowCount()
+    {
+        string sql = $"{GetSqlStatement()};\nIF @@ROWCOUNT = 0\nBEGIN     RETURN\nEND ";
+
+        return new ConcatSql(ParameterManager, sql, ParameterPrefix);
     }
 
     public void InsertColumnsFromProjection<TProjection>() where TProjection : class
