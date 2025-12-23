@@ -49,7 +49,7 @@ public class BaseInsertBuilderTest
     {
         _feature.SelectBuilder.AddProjection<QueryableMod3>();
 
-        string result = _feature.BuildStatement();
+        string result = _feature.GetSqlStatement();
 
         Assert.Equal(6, _feature.InsertTargets.Count);
         Assert.StartsWith("INSERT INTO Table3 (PropertyID, Address, PcoeDate, TaskStatus, DecimalVal, DecimalValNull)", result);

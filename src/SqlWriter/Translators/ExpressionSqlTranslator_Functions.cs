@@ -116,11 +116,19 @@ public partial class ExpressionSqlTranslator
 
     private void ResolveIif(MethodCallExpression expression)
     {
-        _addRawValue = true;
-        _sb.Append("IIF(");
-
-        Visit(expression.Arguments[0]);
-        _sb.Append(", ");
+         _addRawValue = true;
+        
+        if (expression.Arguments[0] is ConstantExpression constant)
+        {
+            _sb.Append($"IIF({constant.Value}, ");
+        }
+        else
+        {
+            _sb.Append("IIF(");
+            Visit(expression.Arguments[0]);
+            _sb.Append(", ");
+        }
+        
         Visit(expression.Arguments[1]);
         _sb.Append(", ");
         Visit(expression.Arguments[2]);
